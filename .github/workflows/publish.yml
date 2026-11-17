@@ -1,24 +1,75 @@
-name: Publish to Chocolatey
+name: Auto-Update & Publish to Chocolatey
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths:
-      - 'multron-download-manager/**'
-      - '.github/workflows/publish.yml'
+  schedule:
+    - cron: '0 3 * * *' # Her gece UTC 03:00'te yeni sürüm kontrolü yapar
+
+permissions:
+  contents: write
 
 jobs:
-  publish:
+  update-and-publish:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check Latest Release & Update Files
+        id: check
+        shell: pwsh
+        run: |
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/Multron-Community/Multron-Download-Manager/releases/latest"
+          $latestVersion = $release.tag_name.TrimStart('v')
+
+          [xml]$nuspec = Get-Content "multron-download-manager/multron-download-manager.nuspec"
+          $currentVersion = $nuspec.package.metadata.version
+
+          if ($latestVersion -eq $currentVersion) {
+            Write-Host "Already up to date ($currentVersion). Skipping push."
+            echo "changed=false" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+
+          $asset = $release.assets | Where-Object { $_.name -like "*-x64-Setup.exe" } | Select-Object -First 1
+          if (-not $asset) {
+            throw "x64-Setup.exe asset not found in release $latestVersion"
+          }
+
+          $tempFile = "$env:TEMP\$($asset.name)"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $tempFile
+          $hash = (Get-FileHash -Path $tempFile -Algorithm SHA256).Hash.ToLower()
+
+          # 1. Update .nuspec
+          $nuspec.package.metadata.version = $latestVersion
+          $nuspec.package.metadata.releaseNotes = "https://github.com/Multron-Community/Multron-Download-Manager/releases/tag/v$latestVersion"
+          $nuspec.Save((Resolve-Path "multron-download-manager/multron-download-manager.nuspec"))
+
+          # 2. Update chocolateyinstall.ps1
+          $installScriptPath = "multron-download-manager/tools/chocolateyinstall.ps1"
+          $scriptContent = Get-Content $installScriptPath -Raw
+          $scriptContent = $scriptContent -replace "(\$url64\s*=\s*')[^']+(')", "`${1}$($asset.browser_download_url)`${2}"
+          $scriptContent = $scriptContent -replace "(\$checksum64\s*=\s*')[^']+(')", "`${1}$hash`${2}"
+          Set-Content -Path $installScriptPath -Value $scriptContent -NoNewline
+
+          echo "changed=true" >> $env:GITHUB_OUTPUT
+          echo "version=$latestVersion" >> $env:GITHUB_OUTPUT
+
+      - name: Commit Updated Manifests
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add multron-download-manager/
+          git commit -m "chore(multron-download-manager): update to v${{ steps.check.outputs.version }}"
+          git push
+
       - name: Pack Chocolatey Package
+        if: steps.check.outputs.changed == 'true'
         working-directory: multron-download-manager
         run: choco pack
 
       - name: Push to Chocolatey
+        if: steps.check.outputs.changed == 'true'
         working-directory: multron-download-manager
         run: |
           $pkg = (Get-ChildItem -Filter "multron-download-manager.*.nupkg").FullName
