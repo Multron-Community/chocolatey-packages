@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>multron-download-manager</id>
-    <version>0.0.11.20261117</version>
+    <version>0.0.11</version>
     <title>Multron Download Manager</title>
     <authors>İbrahim Emir Akman, Winball501</authors>
     <owners>Multron-Community</owners>
