@@ -1,0 +1,23 @@
+name: Publish to Chocolatey
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'multron-download-manager/**'
+      - '.github/workflows/publish.yml'
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack Chocolatey Package
+        working-directory: multron-download-manager
+        run: choco pack
+
+      - name: Push to Chocolatey
+        working-directory: multron-download-manager
+        run: choco push multron-download-manager.*.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
