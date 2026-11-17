@@ -17,6 +17,7 @@
 Multron Download Manager is a fast, cross-platform multi-connection download manager built with Rust, Tauri v2, and Svelte 5, featuring segmented HTTP/HTTPS downloads, integrated yt-dlp support, and BitTorrent capabilities.
     </description>
     <releaseNotes>https://github.com/Multron-Community/Multron-Download-Manager/releases/tag/v0.0.11</releaseNotes>
+    <iconUrl>https://cdn.jsdelivr.net/gh/Multron-Community/chocolatey-packages@main/multron-download-manager/256x256.png</iconUrl>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
