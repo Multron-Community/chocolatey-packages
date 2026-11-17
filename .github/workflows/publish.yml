@@ -20,4 +20,6 @@ jobs:
 
       - name: Push to Chocolatey
         working-directory: multron-download-manager
-        run: choco push multron-download-manager.*.nupkg --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
+        run: |
+          $pkg = (Get-ChildItem -Filter "multron-download-manager.*.nupkg").FullName
+          choco push "$pkg" --source https://push.chocolatey.org/ --api-key ${{ secrets.CHOCOLATEY_API_KEY }}
