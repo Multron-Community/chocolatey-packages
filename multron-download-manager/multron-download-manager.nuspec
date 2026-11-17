@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>multron-download-manager</id>
+    <version>0.0.11</version>
+    <title>Multron Download Manager</title>
+    <authors>İbrahim Emir Akman, Winball501</authors>
+    <owners>Multron-Community</owners>
+    <projectUrl>https://github.com/Multron-Community/Multron-Download-Manager</projectUrl>
+    <projectSourceUrl>https://github.com/Multron-Community/Multron-Download-Manager</projectSourceUrl>
+    <bugTrackerUrl>https://github.com/Multron-Community/Multron-Download-Manager/issues</bugTrackerUrl>
+    <licenseUrl>https://github.com/Multron-Community/Multron-Download-Manager/blob/main/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>download-manager downloader yt-dlp bittorrent torrent aria2 rust tauri</tags>
+    <summary>Fast, cross-platform multi-connection download manager with yt-dlp and BitTorrent support</summary>
+    <description>
+Multron Download Manager is a fast, cross-platform multi-connection download manager built with Rust, Tauri v2, and Svelte 5, featuring segmented HTTP/HTTPS downloads, integrated yt-dlp support, and BitTorrent capabilities.
+    </description>
+    <releaseNotes>https://github.com/Multron-Community/Multron-Download-Manager/releases/tag/v0.0.11</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
